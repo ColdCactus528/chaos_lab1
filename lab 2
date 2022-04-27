@@ -1,0 +1,46 @@
+import plotly.graph_objects as go
+import plotly.figure_factory as ff
+import numpy as np
+import math
+a = 4
+b = 2
+R = (a-b)**2 * (1 / (b**2 - b) + 1) / 10
+
+def CircleEquationForFirstDot(phi):
+    x = a + R * math.cos(phi)
+    y = R * math.sin(phi)
+    x1 = a - y - b*x + x*y**2
+    y1 = b*x - x*y
+    return np.array([x1, y1])
+
+def CircleEquationForSecondDot(phi):
+    x = (b-a)/(b**2 - b) + R * math.cos(phi)
+    y = b + R * math.sin(phi)
+    x1 = a - y - b*x + x*y**2
+    y1 = b*x - x*y
+    return np.array([x1, y1])
+
+coordListForFirstDot = []
+for phi in np.arange(0,  2 * math.pi, 0.1):
+    coordListForFirstDot.append(CircleEquationForFirstDot(phi))
+
+coordListForSecondDot = []
+for phi in np.arange(0,  2 * math.pi, 0.1):
+    coordListForSecondDot.append(CircleEquationForSecondDot(phi))
+
+x,y = np.meshgrid(np.arange(-R, R, .2), np.arange(4-R, 4+R, .2))
+u = a - y - b*x + x*y**2
+v = b*x - x*y
+fig3 = ff.create_quiver(x, y, u, v, arrow_scale=.04)
+
+x1,y1 = np.meshgrid(np.arange(-1-R, -1+R, .2), np.arange(2-R, 2+R, .2))
+u1 = a - y1 - b*x1 + x1*y1**2
+v1 = b*x1 - x1*y1
+fig4 = ff.create_quiver(x1, y1, u1, v1, arrow_scale=.04)
+
+fig1 = go.Figure(data=go.Scatter(x=np.array(coordListForFirstDot).transpose()[0], y=np.array(coordListForFirstDot).transpose()[1]))
+fig2 = go.Figure(data=go.Scatter(x=np.array(coordListForSecondDot).transpose()[0], y=np.array(coordListForSecondDot).transpose()[1]))
+fig1.show()
+fig2.show()
+fig3.show()
+fig4.show()

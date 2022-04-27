@@ -1,0 +1,41 @@
+import numpy
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import plotly.figure_factory as ff
+import numpy as np
+import math
+dt = 0.1
+
+def Func(vec, a):
+    x = vec[0]
+    y = vec[1]
+    return numpy.array([x*x - y - 1, y*(x-a)])
+
+def NextValue(vec, a):
+    return numpy.array(vec + dt*Func(vec, a))
+
+def Solve(startVec, T, a):
+    trajectory = numpy.array([startVec])
+    print(trajectory[0])
+    for i in range(1, int(T/dt)):
+        trajectory = numpy.vstack((trajectory, NextValue(trajectory[i-1], a)))
+
+    return trajectory
+
+T = 10.0
+Alist = [-1.5, 0.5, 1.5]
+fig = make_subplots(rows=3, cols=3)
+for i in range(0, 3):
+    answer = Solve(numpy.array([0.1, 0.1]), T, Alist[i])
+    answerX = numpy.transpose(answer)[0]
+    answerY = numpy.transpose(answer)[1]
+    fig.add_trace(go.Scatter(x=answerX, y=answerY, name="Фазовый потрет", line=dict(color='firebrick', width=4)), row=1, col=i+1)
+    fig.add_trace(go.Scatter(x=numpy.linspace(0, T, int(T/dt)), y=answerX, name="Интегральная кривая Х", line=dict(color='green', width=4)), row=2, col=i+1)
+    fig.add_trace(go.Scatter(x=numpy.linspace(0, T, int(T/dt)), y=answerY, name="Интегральная кривая У", line=dict(color='blue', width=4)), row=2, col=i+1)
+    x,y = np.meshgrid(np.arange(0, 2, .2), np.arange(0, 2, .2))
+    u = x**2 - y -1
+    v = y*(x-Alist[i])
+    fig1 = ff.create_quiver(x, y, u, v)
+    for d in fig1.data:
+        fig.add_trace(go.Scatter(x=d['x'], y=d['y'], name="Векторное поле", line=dict(color='plum', width=4)), row=3, col=i+1)
+fig.show()
